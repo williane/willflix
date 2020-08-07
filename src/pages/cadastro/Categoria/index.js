@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PageDefault from '../../../componentes/PageDefault';
 import FormField from '../../../componentes/FormField';
 import Button from '../../../componentes/Button';
+import useForm from '../../../hooks/useForm';
 
 function CadatroCategoria() {
   const [categorias, setCategorias] = useState([]);
@@ -12,26 +13,13 @@ function CadatroCategoria() {
     cor: '',
   };
 
-  const [values, setValues] = useState(valoresIniciais);
-  // chaves no nome da variavel abre o array que esta recebendo
-
-  function setValue(chave, valor) {
-    setValues({
-      ...values,
-      [chave]: valor, // deixa a chave dinâmica
-    });
-  }
-
-  function handleChange(infoEvento) {
-    setValue(
-      infoEvento.target.getAttribute('name'),
-      infoEvento.target.value,
-    );
-  }
+  const { handleChange, values, clearForm } = useForm(valoresIniciais);
 
   useEffect(() => {
-    const URL = 'http://localhost:8080/categorias';
-    fetch(URL).then(async (respostaDoServidor) => {
+    const URL_TOP = window.location.hostname.includes('localhost')
+      ? 'http://localhost:8080/categorias'
+      : 'https://willmarksflix.herokuapp.com/categorias';
+    fetch(URL_TOP).then(async (respostaDoServidor) => {
       const resposta = await respostaDoServidor.json();
       setCategorias([
         ...resposta,
@@ -54,7 +42,7 @@ function CadatroCategoria() {
           ...categorias, // coloca todos os itens que ja tem dentro da lista
           values,
         ]);
-        setValues(valoresIniciais);
+        clearForm();
       }}
       >
         <FormField
@@ -87,9 +75,9 @@ function CadatroCategoria() {
       </form>
 
       <ul>
-        {categorias.map((categoria, indice) => (
-          <li key={`${categoria}${indice}`}>
-            {categoria.nome}
+        {categorias.map((categoria) => (
+          <li key={`${categoria.titulo}`}>
+            {categoria.titulo}
           </li>
         ))}
       </ul>
